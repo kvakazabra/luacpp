@@ -22,6 +22,7 @@
    SOFTWARE.
    */
 
+#include <vector>
 #include <memory>
 #include <iostream>
 
@@ -124,7 +125,7 @@ int LuaLibrary::RegisterFunctions(LuaState &L)
     luaL_newmetatable(L, metaTableName.c_str());
 
 	// create table of all meta-methods:
-	luaL_Reg arrayMetaMeth[metaMethods.size()+1];
+	std::vector<luaL_Reg> arrayMetaMeth(metaMethods.size() + 1);
 	int count = 0;
 
 	for (auto & x : metaMethods) {
@@ -138,7 +139,7 @@ int LuaLibrary::RegisterFunctions(LuaState &L)
 	arrayMetaMeth[count].func = NULL;
 
 	// create table of all functions:
-	luaL_Reg arraylib_f[functions.size()+1];
+	std::vector<luaL_Reg> arraylib_f(functions.size() + 1);
 	count = 0;
 
 	for (auto & x : functions) {
@@ -152,7 +153,7 @@ int LuaLibrary::RegisterFunctions(LuaState &L)
 	arraylib_f[count].func = NULL;
 
 	// create table of all methods:
-	luaL_Reg arraylib_m[methods.size()+1];
+	std::vector<luaL_Reg> arraylib_m(methods.size() + 1);
 	count = 0;
 
 	for (auto & x : methods) {
@@ -166,20 +167,23 @@ int LuaLibrary::RegisterFunctions(LuaState &L)
 	arraylib_m[count].func = NULL;
 
 	// add metamethods to new metatable:
-	luaL_setfuncs(L, arrayMetaMeth, 0);
+	luaL_setfuncs(L, arrayMetaMeth.data(), 0);
 
 	// create method table:
-	luaL_newlibtable(L, arraylib_m);
+	lua_createtable(L, 0, static_cast<int>(arraylib_m.size()));
 
 	// Set the methods to the metatable that should be accessed via object:func:
-    luaL_setfuncs(L, arraylib_m, 0);
+    luaL_setfuncs(L, arraylib_m.data(), 0);
 
 	// Pop the first metatable off the stack and assign it to __index of the second one:
 	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);  /* pop metatable */
 
 	// Register the object.func functions into the table that is at the top of the stack:
-	luaL_newlib(L, arraylib_f);
+	luaL_checkversion(L);
+	lua_createtable(L, 0, static_cast<int>(arraylib_f.size()));
+	luaL_setfuncs(L, arraylib_f.data(), 0);
+
 	lua_setglobal(L,name.c_str());
 
 	return 0;

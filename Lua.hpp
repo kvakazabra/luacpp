@@ -25,6 +25,9 @@
 #ifndef LUACPP_LUA_HPP
 #define LUACPP_LUA_HPP
 
+#include <string> // to_string is not a member of std?
+#include <exception>
+
 #ifdef __cplusplus
   extern "C" {
      #include "lua.h"

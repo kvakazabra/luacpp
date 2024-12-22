@@ -33,3 +33,15 @@ debug
 *.exe
 *.out
 *.app
+
+*.vcx*
+*.sln
+*-build/
+*-install/
+googletest-prefix/
+googletest-src/
+CMakeCache.txt
+CMakeFiles/
+CTest*
+.vs/
+*.cmake*
